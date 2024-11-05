@@ -1,48 +1,128 @@
 /**
- * @extends {Animation}
- * The Ghost Score Animation
+ * The Animations Manager Class
  */
-class GhostScoreAnimation extends Animation {
+class Animations {
   /**
-   * The Ghost Score Animation constructor
-   * @param {Canvas} canvas
-   * @param {string} text
-   * @param {{x: number, y: number}} pos
+   * The Animations Manager constructor
    */
-  constructor(canvas, text, pos) {
-    super();
-    
-    this.canvas = canvas;
-    this.text = text;
-    this.pos = pos;
-    this.blocksGame = true;
-    this.endTime = 1000;
+  constructor() {
+    this.canvas = Board.screenCanvas; // Assumindo que Board é um objeto global
+    this.animations = []; // Lista de animações em execução
   }
 
   /**
-   * Does the Ghost Score animation
+   * Returns true if there is an animation that blocks the game loop
+   * @returns {boolean}
    */
-  animate() {
-    // Calculando o tamanho da animação (começa menor e cresce até o tamanho máximo de 1)
-    let size = Math.min(0.2 + Math.round((this.time * 100) / 500) / 100, 1);
+  isAnimating() {
+    return (
+      this.animations.length > 0 &&
+      this.animations.some((anim) => anim.blocksGameLoop())
+    );
+  }
 
-    // Limpando as retângulos salvos
-    this.canvas.clearSavedRects();
+  /**
+   * Animates the current animation, if possible
+   * @param {number} time
+   */
+  animate(time) {
+    if (this.animations.length) {
+      // Itera sobre as animações
+      for (let i = 0; i < this.animations.length; i++) {
+        const animation = this.animations[i];
+        animation.incTimer(time);
 
-    // Desenhando o texto com animação
-    this.canvas.drawText({
-      size: size,
-      color: "rgb(51, 255, 255)", // Cor do texto
-      text: this.text,
-      pos: {
-        x: this.pos.x + 0.5, // Pequeno ajuste no eixo X
-        y: this.pos.y + 0.5, // Pequeno ajuste no eixo Y
-      },
-    });
-
-    // Após 200ms, desbloqueia o jogo
-    if (this.time > 200) {
-      this.blocksGame = false;
+        if (animation.isAnimating()) {
+          animation.animate(); // Se estiver animando, executa a animação
+        } else {
+          animation.onEnd(); // Caso contrário, finaliza a animação
+          this.animations.splice(i, 1); // Remove a animação da lista
+          i--; // Ajusta o índice após a remoção
+        }
+      }
     }
+  }
+
+  /**
+   * Ends all the Animations
+   */
+  endAll() {
+    this.animations.forEach((anim) => anim.onEnd());
+    this.animations = []; // Limpa a lista de animações
+  }
+
+  /**
+   * Adds a new animation
+   * @param {Animation} animation
+   */
+  add(animation) {
+    this.animations.push(animation);
+  }
+
+  /**
+   * Creates the Ready Animation
+   * @param {function} callback
+   */
+  ready(callback) {
+    this.add(new ReadyAnimation(this.canvas, callback));
+  }
+
+  /**
+   * Creates the Paused Animation
+   */
+  paused() {
+    this.add(new PausedAnimation(this.canvas));
+  }
+
+  /**
+   * Creates the Blob's Death Animation
+   * @param {Blob} blob
+   * @param {function} callback
+   */
+  death(blob, callback) {
+    this.add(new DeathAnimation(this.canvas, blob, callback));
+  }
+
+  /**
+   * Creates the Game Over Animation
+   * @param {function} callback
+   */
+  gameOver(callback) {
+    this.add(new GameOverAnimation(this.canvas, callback));
+  }
+
+  /**
+   * Creates the Ghost Score Animation
+   * @param {string} score
+   * @param {{x: number, y: number}} pos
+   */
+  ghostScore(score, pos) {
+    this.add(new GhostScoreAnimation(this.canvas, score, pos));
+  }
+
+  /**
+   * Creates the Fruit Score Animation
+   * @param {string} score
+   * @param {{x: number, y: number}} pos
+   */
+  fruitScore(score, pos) {
+    this.add(new FruitScoreAnimation(this.canvas, score, pos));
+  }
+
+  /**
+   * Creates the End Level Animation
+   * @param {function} callback
+   */
+  endLevel(callback) {
+    this.add(new EndLevelAnimation(callback));
+  }
+
+  /**
+   * Creates the New Level Animation
+   * @param {number} level
+   * @param {function} callback
+   */
+  newLevel(level, callback) {
+    this.add(new NewLevelAnimation(this.canvas, level, callback));
   }
 }
