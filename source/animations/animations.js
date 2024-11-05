@@ -1,125 +1,128 @@
-/*
-* The Animations Manager Class
-*/
+/**
+ * The Animations Manager Class
+ */
 class Animations {
-
-    /*
-    * The Animations Manager constructor
-    */
-   constructor () {
-    thisncanvas  = Board.screenCanvas;
-    this.Animations = [];
-   }
-
-   /**
-    * Returns true if there is an animation
-    */
-   isAnimating() {
-    return this.Animations.length &&
-    this.Animations.some((anim) => anim.blocksGameLoop());
-   }
-
-   /**
-    * Animates the current animation, if possible
-    * @param {number} time
-    */
-   animate(time) {
-    if (this.Animations.length) {
-        this.Animations.forEach((animation, index, Object) => {
-            animation.incTimer(time);
-            if (animation.isAnimating()) {
-                animation.animate();
-            } else {
-                animation.onEnd();
-                Object.splice(index, 1);
-            }
-        });
-    }
-}
-
-/**
- * Ends all the Animations
- */
-endALL(){
-    this.Animations.forEach((anim) => anim.onEnd());
-    this.animations = [];
-}
-
-/**
- * adds a new animation
- * @param {Animation} animation
- */
- add(animation) {
-    this.animations.push(animation);
- }
-
-
-
- /**
-  * Creates the Ready Animation
-  * @param {fuction} callback
-  * /
-  ready(callback) {
-  this.add(new ReadyAnimation(this.canvas, callback));
+  /**
+   * The Animations Manager constructor
+   */
+  constructor() {
+    this.canvas = Board.screenCanvas; // Assumindo que Board é um objeto global
+    this.animations = []; // Lista de animações em execução
   }
 
   /**
-   * Creates the paused Animation
+   * Returns true if there is an animation that blocks the game loop
+   * @returns {boolean}
+   */
+  isAnimating() {
+    return (
+      this.animations.length > 0 &&
+      this.animations.some((anim) => anim.blocksGameLoop())
+    );
+  }
+
+  /**
+   * Animates the current animation, if possible
+   * @param {number} time
+   */
+  animate(time) {
+    if (this.animations.length) {
+      // Itera sobre as animações
+      for (let i = 0; i < this.animations.length; i++) {
+        const animation = this.animations[i];
+        animation.incTimer(time);
+
+        if (animation.isAnimating()) {
+          animation.animate(); // Se estiver animando, executa a animação
+        } else {
+          animation.onEnd(); // Caso contrário, finaliza a animação
+          this.animations.splice(i, 1); // Remove a animação da lista
+          i--; // Ajusta o índice após a remoção
+        }
+      }
+    }
+  }
+
+  /**
+   * Ends all the Animations
+   */
+  endAll() {
+    this.animations.forEach((anim) => anim.onEnd());
+    this.animations = []; // Limpa a lista de animações
+  }
+
+  /**
+   * Adds a new animation
+   * @param {Animation} animation
+   */
+  add(animation) {
+    this.animations.push(animation);
+  }
+
+  /**
+   * Creates the Ready Animation
+   * @param {function} callback
+   */
+  ready(callback) {
+    this.add(new ReadyAnimation(this.canvas, callback));
+  }
+
+  /**
+   * Creates the Paused Animation
    */
   paused() {
     this.add(new PausedAnimation(this.canvas));
   }
 
   /**
-   * Creates the Blob´s Death Animation
-   * @param {Blob} blob 
-   * @param {fuction} callback
+   * Creates the Blob's Death Animation
+   * @param {Blob} blob
+   * @param {function} callback
    */
   death(blob, callback) {
     this.add(new DeathAnimation(this.canvas, blob, callback));
   }
 
   /**
-   * Creates the Ghost Scpre Animation
-   * @param {string} text
-   * @param {{x: number, y: number}} pos 
+   * Creates the Game Over Animation
+   * @param {function} callback
    */
-  ghostScore(text, pos) {
-    this.add(new GhostScoreAnimation(this.canvas, text, pos));
+  gameOver(callback) {
+    this.add(new GameOverAnimation(this.canvas, callback));
   }
 
   /**
    * Creates the Ghost Score Animation
-   * @param {string} text
+   * @param {string} score
    * @param {{x: number, y: number}} pos
    */
-  ghostScore(score,pos) {
+  ghostScore(score, pos) {
     this.add(new GhostScoreAnimation(this.canvas, score, pos));
   }
 
-/**
- * Creates the Fruit Score Animation
- * @param {string} text
- * @param {{x: number, y: number}} pos
- */ 
-fruitScore(score, pos) {
+  /**
+   * Creates the Fruit Score Animation
+   * @param {string} score
+   * @param {{x: number, y: number}} pos
+   */
+  fruitScore(score, pos) {
     this.add(new FruitScoreAnimation(this.canvas, score, pos));
-}
+  }
 
-/**
- * Creates the New Level Animation
- * @param {fuction} callback
- */
-EndLevel(callback) {
+  /**
+   * Creates the End Level Animation
+   * @param {function} callback
+   */
+  endLevel(callback) {
     this.add(new EndLevelAnimation(callback));
-}
+  }
 
-/**
- * Creates the New Level Animation
- * @param {number} Level
- * @param {fuction} callback
- */
-newlevel(level, callback) {
+  /**
+   * Creates the New Level Animation
+   * @param {number} level
+   * @param {function} callback
+   */
+  newLevel(level, callback) {
     this.add(new NewLevelAnimation(this.canvas, level, callback));
-   }
+  }
 }
