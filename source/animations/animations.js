@@ -1,125 +1,48 @@
-/*
-* The Animations Manager Class
-*/
-class Animations {
-
-    /*
-    * The Animations Manager constructor
-    */
-   constructor () {
-    thisncanvas  = Board.screenCanvas;
-    this.Animations = [];
-   }
-
-   /**
-    * Returns true if there is an animation
-    */
-   isAnimating() {
-    return this.Animations.length &&
-    this.Animations.some((anim) => anim.blocksGameLoop());
-   }
-
-   /**
-    * Animates the current animation, if possible
-    * @param {number} time
-    */
-   animate(time) {
-    if (this.Animations.length) {
-        this.Animations.forEach((animation, index, Object) => {
-            animation.incTimer(time);
-            if (animation.isAnimating()) {
-                animation.animate();
-            } else {
-                animation.onEnd();
-                Object.splice(index, 1);
-            }
-        });
-    }
-}
-
 /**
- * Ends all the Animations
+ * @extends {Animation}
+ * The Ghost Score Animation
  */
-endALL(){
-    this.Animations.forEach((anim) => anim.onEnd());
-    this.animations = [];
-}
-
-/**
- * adds a new animation
- * @param {Animation} animation
- */
- add(animation) {
-    this.animations.push(animation);
- }
-
-
-
- /**
-  * Creates the Ready Animation
-  * @param {fuction} callback
-  * /
-  ready(callback) {
-  this.add(new ReadyAnimation(this.canvas, callback));
-  }
-
+class GhostScoreAnimation extends Animation {
   /**
-   * Creates the paused Animation
-   */
-  paused() {
-    this.add(new PausedAnimation(this.canvas));
-  }
-
-  /**
-   * Creates the Blob´s Death Animation
-   * @param {Blob} blob 
-   * @param {fuction} callback
-   */
-  death(blob, callback) {
-    this.add(new DeathAnimation(this.canvas, blob, callback));
-  }
-
-  /**
-   * Creates the Ghost Scpre Animation
-   * @param {string} text
-   * @param {{x: number, y: number}} pos 
-   */
-  ghostScore(text, pos) {
-    this.add(new GhostScoreAnimation(this.canvas, text, pos));
-  }
-
-  /**
-   * Creates the Ghost Score Animation
+   * The Ghost Score Animation constructor
+   * @param {Canvas} canvas
    * @param {string} text
    * @param {{x: number, y: number}} pos
    */
-  ghostScore(score,pos) {
-    this.add(new GhostScoreAnimation(this.canvas, score, pos));
+  constructor(canvas, text, pos) {
+    super();
+    
+    this.canvas = canvas;
+    this.text = text;
+    this.pos = pos;
+    this.blocksGame = true;
+    this.endTime = 1000;
   }
 
-/**
- * Creates the Fruit Score Animation
- * @param {string} text
- * @param {{x: number, y: number}} pos
- */ 
-fruitScore(score, pos) {
-    this.add(new FruitScoreAnimation(this.canvas, score, pos));
-}
+  /**
+   * Does the Ghost Score animation
+   */
+  animate() {
+    // Calculando o tamanho da animação (começa menor e cresce até o tamanho máximo de 1)
+    let size = Math.min(0.2 + Math.round((this.time * 100) / 500) / 100, 1);
 
-/**
- * Creates the New Level Animation
- * @param {fuction} callback
- */
-EndLevel(callback) {
-    this.add(new EndLevelAnimation(callback));
-}
+    // Limpando as retângulos salvos
+    this.canvas.clearSavedRects();
 
-/**
- * Creates the New Level Animation
- * @param {number} Level
- * @param {fuction} callback
- */
-newlevel(level, callback) {
-    this.add(new NewLevelAnimation(this.canvas, level, callback));
-   }
+    // Desenhando o texto com animação
+    this.canvas.drawText({
+      size: size,
+      color: "rgb(51, 255, 255)", // Cor do texto
+      text: this.text,
+      pos: {
+        x: this.pos.x + 0.5, // Pequeno ajuste no eixo X
+        y: this.pos.y + 0.5, // Pequeno ajuste no eixo Y
+      },
+    });
+
+    // Após 200ms, desbloqueia o jogo
+    if (this.time > 200) {
+      this.blocksGame = false;
+    }
+  }
 }
