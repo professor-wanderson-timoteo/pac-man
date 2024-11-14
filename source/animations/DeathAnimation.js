@@ -1,4 +1,8 @@
-class GhostScoreAnimation extends Animation {
+/**
+ * @extends {Animation}
+ * The Fruit Score Animation
+ */
+class DeathAnimation extends Animation {
   /**
    * O construtor da animação Ghost Score
    * @param {Canvas} canvas
