@@ -33,7 +33,5 @@ class EndLevelAnimation extends Animation {
       // Atualiza o intervalo do próximo blink (acrescenta 150ms)
       this.blinkTimer += 150;
     }
-
-    }
   }
-
+}
