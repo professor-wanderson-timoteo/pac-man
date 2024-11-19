@@ -1,65 +1,61 @@
-    /**
-     * The Animation Base Class
-     */
-    class Animation {
+/**
+ * The Animation Base Class
+ */
+class Animation {
     
     /**
-     * the animation base constructor
+     * The Animation Base constructor
      */
     constructor() {
         this.time = 0;
-    } 
-
+    }
+    
     /**
-     * Increases thr timer
+     * Increases the timer
      * @param {number} time
      */
-    incTime (time) {
+    incTimer(time) {
         this.time += time;
     }
     
     /**
-     * returns true if the animation hasn't ended
-     * @return {boolean} 
+     * Returns true if the animation hasn't ended
+     * @return {boolean}
      */
-    isAnimating () {
+    isAnimating() {
         return this.endTime > this.time;
     }
-
-    /**
-     * returns true if the game loop stops while the animation is running
-     * @return {boolean} 
-     */ 
-        blocksGameLoop () {
-    return this.blocksGames;
-        }
-
-        /**
-         * does the animation
-         * @param {number} time
-         */
-        animate() {
-            return undefined;
-        }
-
-        /** 
-         * called when the animation ends
-         */
-        onEnd() {
-            if (this.canvas) {
-                if (this.clearAll) {
-                    this.convas.clear();
-                } else {
-                    this.canvas.clearSavedRects()
-                }
-                }
-        
-                if (this.callback) {
-                    this.callback();
-                }
-            }
-
-        }
-
-
     
+    /**
+     * Returns true if the game loop stops while the animation is running
+     * @return {boolean}
+     */
+    blocksGameLoop() {
+        return this.blocksGame;
+    }
+    
+    /**
+     * Does the Animation
+     * @param {number} time
+     */
+    animate() {
+        return undefined;
+    }
+    
+    /**
+     * Called when the animation ends
+     */
+    onEnd() {
+        if (this.canvas) {
+            if (this.clearAll) {
+                this.canvas.clear();
+            } else {
+                this.canvas.clearSavedRects();
+            }
+        }
+        
+        if (this.callback) {
+            this.callback();
+        }
+    }
+}
